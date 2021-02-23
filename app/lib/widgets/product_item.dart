@@ -1,4 +1,5 @@
 import 'package:app/models/product.dart';
+import 'package:app/models/products_provider.dart';
 import 'package:app/screens/product_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -28,6 +29,8 @@ class ProductItem extends StatelessWidget {
             color: Theme.of(context).accentColor,
             onPressed: () {
               product.toggleFavoriteStatus();
+              Provider.of<ProductsProvider>(context, listen: false)
+                  .refreshProductList();
             },
           ),
           title: Text(
