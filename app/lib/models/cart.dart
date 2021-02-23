@@ -13,16 +13,20 @@ class CartItem {
       @required this.price});
 }
 
-class Class with ChangeNotifier {
-  Map<String, CartItem> _items;
+class CartProvider with ChangeNotifier {
+  Map<String, CartItem> _items = {};
 
   Map<String, CartItem> get items {
     return {..._items};
   }
 
+  int get itemCount {
+    return _items.values
+        .fold(0, (quantity, cartItem) => cartItem.quantity + quantity);
+  }
+
   void addItem(String productId, double price, String title) {
     if (_items.containsKey(productId)) {
-      // increase quantity
       _items.update(
           productId,
           (exisitingCartItem) => CartItem(
@@ -39,5 +43,6 @@ class Class with ChangeNotifier {
               quantity: 1,
               price: price));
     }
+    notifyListeners();
   }
 }
