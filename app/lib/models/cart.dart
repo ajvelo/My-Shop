@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class CartItem {
+class Cart {
   final String id;
   final String title;
   final int quantity;
   final double price;
 
-  CartItem(
+  Cart(
       {@required this.id,
       @required this.title,
       @required this.quantity,
@@ -14,22 +14,29 @@ class CartItem {
 }
 
 class CartProvider with ChangeNotifier {
-  Map<String, CartItem> _items = {};
+  Map<String, Cart> _items = {};
 
-  Map<String, CartItem> get items {
+  Map<String, Cart> get items {
     return {..._items};
   }
 
   int get itemCount {
-    return _items.values
-        .fold(0, (quantity, cartItem) => cartItem.quantity + quantity);
+    return _items.values.length;
+  }
+
+  double get totalAmount {
+    var total = 0.0;
+    _items.forEach((key, cartItem) {
+      total += (cartItem.price * cartItem.quantity);
+    });
+    return total;
   }
 
   void addItem(String productId, double price, String title) {
     if (_items.containsKey(productId)) {
       _items.update(
           productId,
-          (exisitingCartItem) => CartItem(
+          (exisitingCartItem) => Cart(
               id: productId,
               title: exisitingCartItem.title,
               quantity: exisitingCartItem.quantity + 1,
@@ -37,12 +44,17 @@ class CartProvider with ChangeNotifier {
     } else {
       _items.putIfAbsent(
           productId,
-          () => CartItem(
+          () => Cart(
               id: DateTime.now().toString(),
               title: title,
               quantity: 1,
               price: price));
     }
+    notifyListeners();
+  }
+
+  void removeItem(String productId) {
+    _items.remove(productId);
     notifyListeners();
   }
 }
