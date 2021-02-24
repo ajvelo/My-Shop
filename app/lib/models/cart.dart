@@ -1,4 +1,3 @@
-import 'package:app/widgets/cart_item.dart';
 import 'package:flutter/material.dart';
 
 class Cart {
