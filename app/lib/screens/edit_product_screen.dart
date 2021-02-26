@@ -1,5 +1,7 @@
 import 'package:app/models/product.dart';
+import 'package:app/models/products_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class EditProductScreen extends StatefulWidget {
   static const routeName = 'edit-product';
@@ -29,6 +31,17 @@ class _EditProductScreenState extends State<EditProductScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    final productId = ModalRoute.of(context).settings.arguments as String;
+    if (productId != null) {
+      _editedProduct =
+          Provider.of<ProductsProvider>(context).findById(productId);
+      _imageUrlController.text = _editedProduct.imageUrl;
+    }
+    super.didChangeDependencies();
+  }
+
+  @override
   void dispose() {
     _imageUrlFocusNode.removeListener(_updateImageUrl);
     _priceFocusNode.dispose();
@@ -41,6 +54,15 @@ class _EditProductScreenState extends State<EditProductScreen> {
   void _saveForm() {
     if (_form.currentState.validate()) {
       _form.currentState.save();
+      final provider = Provider.of<ProductsProvider>(context, listen: false);
+      if (_editedProduct.id != null) {
+        // update product
+        provider.updateProduct(_editedProduct.id, _editedProduct);
+      } else {
+        // new product
+        provider.addProduct(_editedProduct);
+      }
+      Navigator.of(context).pop();
     }
   }
 
@@ -65,6 +87,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 TextFormField(
                   decoration: InputDecoration(labelText: 'Title'),
                   textInputAction: TextInputAction.next,
+                  initialValue: _editedProduct.title,
                   onFieldSubmitted: (_) {
                     FocusScope.of(context).requestFocus(_priceFocusNode);
                   },
@@ -81,12 +104,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         title: newValue,
                         description: _editedProduct.description,
                         price: _editedProduct.price,
+                        isFavorite: _editedProduct.isFavorite,
                         imageUrl: _editedProduct.imageUrl);
                   },
                 ),
                 TextFormField(
                   decoration: InputDecoration(labelText: 'Price'),
                   textInputAction: TextInputAction.next,
+                  initialValue: _editedProduct.price.toString(),
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   focusNode: _priceFocusNode,
                   onFieldSubmitted: (_) {
@@ -108,12 +133,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         id: _editedProduct.id,
                         title: _editedProduct.title,
                         description: _editedProduct.description,
+                        isFavorite: _editedProduct.isFavorite,
                         price: double.parse(newValue),
                         imageUrl: _editedProduct.imageUrl);
                   },
                 ),
                 TextFormField(
                   decoration: InputDecoration(labelText: 'Description'),
+                  initialValue: _editedProduct.description,
                   maxLines: 3,
                   focusNode: _descriptionFocusNode,
                   keyboardType: TextInputType.multiline,
@@ -130,6 +157,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         title: _editedProduct.title,
                         description: newValue,
                         price: _editedProduct.price,
+                        isFavorite: _editedProduct.isFavorite,
                         imageUrl: _editedProduct.imageUrl);
                   },
                 ),
@@ -155,7 +183,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
                                 ),
                               )
                             : FittedBox(
-                                child: Image.network(_imageUrlController.text),
+                                child: Image.network(
+                                    _editedProduct.imageUrl.isNotEmpty
+                                        ? _editedProduct.imageUrl
+                                        : _imageUrlController.text),
                                 fit: BoxFit.fill,
                               ),
                       ),
@@ -172,15 +203,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
                               id: _editedProduct.id,
                               title: _editedProduct.title,
                               description: _editedProduct.description,
+                              isFavorite: _editedProduct.isFavorite,
                               price: _editedProduct.price,
-                              imageUrl: newValue);
-                        },
-                        validator: (value) {
-                          if (value.isEmpty) {
-                            return 'Please provide an image URL';
-                          } else {
-                            return null;
-                          }
+                              imageUrl: newValue.isEmpty
+                                  ? "https://upload.wikimedia.org/wikipedia/commons/e/e2/Unknown_toxicity_icon.png"
+                                  : newValue);
                         },
                         onFieldSubmitted: (_) {
                           _saveForm();
