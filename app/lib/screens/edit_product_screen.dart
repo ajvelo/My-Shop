@@ -58,9 +58,23 @@ class _EditProductScreenState extends State<EditProductScreen> {
       if (_editedProduct.id != null) {
         provider.updateProduct(_editedProduct.id, _editedProduct);
       } else {
-        provider
-            .addProduct(_editedProduct)
-            .then((_) => Navigator.of(context).pop());
+        provider.addProduct(_editedProduct).catchError((error) {
+          return showDialog<Null>(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text('An error occured!'),
+                  content: Text(error.toString()),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text("Ok"))
+                  ],
+                );
+              });
+        }).then((_) => Navigator.of(context).pop());
       }
       // Navigator.of(context).pop();
     }

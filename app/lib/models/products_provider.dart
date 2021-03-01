@@ -73,6 +73,8 @@ class ProductsProvider with ChangeNotifier {
           imageUrl: product.imageUrl);
       _items.add(newProduct);
       notifyListeners();
+    }).catchError((error) {
+      throw error;
     });
   }
 
