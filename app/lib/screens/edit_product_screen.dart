@@ -56,13 +56,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
       _form.currentState.save();
       final provider = Provider.of<ProductsProvider>(context, listen: false);
       if (_editedProduct.id != null) {
-        // update product
         provider.updateProduct(_editedProduct.id, _editedProduct);
       } else {
-        // new product
-        provider.addProduct(_editedProduct);
+        provider
+            .addProduct(_editedProduct)
+            .then((_) => Navigator.of(context).pop());
       }
-      Navigator.of(context).pop();
+      // Navigator.of(context).pop();
     }
   }
 
