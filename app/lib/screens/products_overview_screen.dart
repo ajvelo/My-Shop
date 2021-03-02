@@ -1,4 +1,5 @@
 import 'package:app/models/cart.dart';
+import 'package:app/models/products_provider.dart';
 import 'package:app/screens/cart_screen.dart';
 import 'package:app/widgets/app_drawer.dart';
 import 'package:app/widgets/badge.dart';
@@ -15,6 +16,20 @@ class ProductsOverviewScreen extends StatefulWidget {
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   var _showOnlyFavorites = false;
+
+  @override
+  void didChangeDependencies() {
+    Provider.of<ProductsProvider>(context)
+        .fetchAndSetProducts()
+        .then((loadedProducts) {
+      setState(() {
+        Provider.of<ProductsProvider>(context, listen: false).items =
+            loadedProducts;
+      });
+    });
+    super.didChangeDependencies();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

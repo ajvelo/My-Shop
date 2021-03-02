@@ -51,15 +51,17 @@ class _EditProductScreenState extends State<EditProductScreen> {
     super.dispose();
   }
 
-  void _saveForm() {
+  Future<void> _saveForm() async {
     if (_form.currentState.validate()) {
       _form.currentState.save();
       final provider = Provider.of<ProductsProvider>(context, listen: false);
       if (_editedProduct.id != null) {
         provider.updateProduct(_editedProduct.id, _editedProduct);
       } else {
-        provider.addProduct(_editedProduct).catchError((error) {
-          return showDialog<Null>(
+        try {
+          await provider.addProduct(_editedProduct);
+        } catch (error) {
+          await showDialog<Null>(
               context: context,
               builder: (context) {
                 return AlertDialog(
@@ -74,7 +76,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   ],
                 );
               });
-        }).then((_) => Navigator.of(context).pop());
+        } finally {
+          setState(() {
+            Navigator.of(context).pop();
+          });
+        }
       }
       // Navigator.of(context).pop();
     }
