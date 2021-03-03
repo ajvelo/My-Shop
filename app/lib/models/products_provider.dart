@@ -89,7 +89,8 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  void deleteProduct(String id) {
+  Future<void> deleteProduct(String id) async {
+    http.delete(baseUrl + '/products/$id.json');
     _items.removeWhere((element) => element.id == id);
     notifyListeners();
   }
