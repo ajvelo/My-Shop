@@ -56,7 +56,25 @@ class _EditProductScreenState extends State<EditProductScreen> {
       _form.currentState.save();
       final provider = Provider.of<ProductsProvider>(context, listen: false);
       if (_editedProduct.id != null) {
-        provider.updateProduct(_editedProduct.id, _editedProduct);
+        try {
+          await provider.updateProduct(_editedProduct.id, _editedProduct);
+        } catch (error) {
+          await showDialog<Null>(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text('An error occured!'),
+                  content: Text(error.toString()),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text("Ok"))
+                  ],
+                );
+              });
+        }
       } else {
         try {
           await provider.addProduct(_editedProduct);
@@ -76,13 +94,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   ],
                 );
               });
-        } finally {
-          setState(() {
-            Navigator.of(context).pop();
-          });
         }
       }
-      // Navigator.of(context).pop();
+      setState(() {
+        Navigator.of(context).pop();
+      });
     }
   }
 

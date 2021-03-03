@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class ProductsProvider with ChangeNotifier {
-  static const url =
-      'https://my-shop-7f98a-default-rtdb.europe-west1.firebasedatabase.app/products.json';
+  static const baseUrl =
+      'https://my-shop-7f98a-default-rtdb.europe-west1.firebasedatabase.app';
 
   List<Product> _items = [];
 
@@ -29,7 +29,7 @@ class ProductsProvider with ChangeNotifier {
 
   Future<List<Product>> fetchAndSetProducts() async {
     try {
-      final response = await http.get(url);
+      final response = await http.get(baseUrl + '/products.json');
       final data = json.decode(response.body) as Map<String, dynamic>;
       final List<Product> loadedProducts = [];
       data.forEach((key, value) {
@@ -49,7 +49,7 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> addProduct(Product product) async {
     try {
-      final response = await http.post(url,
+      final response = await http.post(baseUrl + '/products.json',
           body: json.encode({
             'title': product.title,
             'description': product.description,
@@ -70,11 +70,22 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  void updateProduct(String id, Product product) {
+  Future<void> updateProduct(String id, Product product) async {
     final index = _items.indexWhere((element) => element.id == id);
     if (index >= 0) {
-      _items[index] = product;
-      notifyListeners();
+      try {
+        await http.patch(baseUrl + '/products/$id.json',
+            body: json.encode({
+              'title': product.title,
+              'description': product.description,
+              'imageUrl': product.imageUrl,
+              'price': product.price,
+            }));
+        _items[index] = product;
+        notifyListeners();
+      } catch (error) {
+        throw error;
+      }
     }
   }
 

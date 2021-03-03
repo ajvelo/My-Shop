@@ -19,7 +19,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
 
   @override
   void didChangeDependencies() {
-    Provider.of<ProductsProvider>(context)
+    Provider.of<ProductsProvider>(context, listen: false)
         .fetchAndSetProducts()
         .then((loadedProducts) {
       setState(() {
