@@ -1,6 +1,9 @@
 import 'dart:math';
 
+import 'package:app/models/auth.dart';
+import 'package:app/models/http_exception.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 enum AuthMode { Signup, Login }
 
@@ -103,19 +106,37 @@ class _AuthCardState extends State<AuthCard> {
   var _isLoading = false;
   final _passwordController = TextEditingController();
 
-  void _submit() {
+  Future<void> _submit() async {
     if (!_formKey.currentState.validate()) {
       // Invalid!
-      return;
+      return null;
     }
     _formKey.currentState.save();
     setState(() {
       _isLoading = true;
     });
-    if (_authMode == AuthMode.Login) {
-      // Log user in
-    } else {
-      // Sign user up
+    try {
+      if (_authMode == AuthMode.Login) {
+        // Log user in
+        await Provider.of<Auth>(context, listen: false)
+            .login(_authData['email'], _authData['password']);
+      } else {
+        // Sign user up
+        await Provider.of<Auth>(context, listen: false)
+            .signUp(_authData['email'], _authData['password']);
+      }
+    } catch (error) {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Ok'))
+            ], title: Text('Error'), content: Text(error.toString()));
+          });
     }
     setState(() {
       _isLoading = false;
