@@ -1,39 +1,52 @@
-import 'package:app/models/product.dart';
-import 'package:app/models/products_provider.dart';
-import 'package:app/screens/edit_product_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class UserProductItem extends StatelessWidget {
-  final Product product;
+import '../screens/edit_product_screen.dart';
+import '../providers/products.dart';
 
-  UserProductItem({this.product});
+class UserProductItem extends StatelessWidget {
+  final String id;
+  final String title;
+  final String imageUrl;
+
+  UserProductItem(this.id, this.title, this.imageUrl);
+
   @override
   Widget build(BuildContext context) {
+    final scaffold = Scaffold.of(context);
     return ListTile(
-      title: Text(product.title),
+      title: Text(title),
       leading: CircleAvatar(
-        backgroundImage: NetworkImage(product.imageUrl),
+        backgroundImage: NetworkImage(imageUrl),
       ),
       trailing: Container(
         width: 100,
         child: Row(
-          children: [
+          children: <Widget>[
             IconButton(
               icon: Icon(Icons.edit),
               onPressed: () {
-                Navigator.of(context).pushNamed(EditProductScreen.routeName,
-                    arguments: product.id);
+                Navigator.of(context)
+                    .pushNamed(EditProductScreen.routeName, arguments: id);
               },
               color: Theme.of(context).primaryColor,
             ),
             IconButton(
-                icon: Icon(Icons.delete),
-                onPressed: () {
-                  Provider.of<ProductsProvider>(context, listen: false)
-                      .deleteProduct(product.id);
-                },
-                color: Theme.of(context).errorColor),
+              icon: Icon(Icons.delete),
+              onPressed: () async {
+                try {
+                  await Provider.of<Products>(context, listen: false)
+                      .deleteProduct(id);
+                } catch (error) {
+                  scaffold.showSnackBar(
+                    SnackBar(
+                      content: Text('Deleting failed!', textAlign: TextAlign.center,),
+                    ),
+                  );
+                }
+              },
+              color: Theme.of(context).errorColor,
+            ),
           ],
         ),
       ),
