@@ -12,7 +12,7 @@
   <h3 align="center">My Shop</h3>
 
   <p align="center">
-  An application where you can create your create, edit and upload your favorite products, place orders and find out the cheapes place to buy your product from!
+  An application where you can create your create, edit and upload your favorite products, place orders and find out the cheapest place to buy your product from!
     <br />
     <a href="https://github.com/ajvelo/My-Shop"><strong>Explore the docs »</strong></a>
     <br />
